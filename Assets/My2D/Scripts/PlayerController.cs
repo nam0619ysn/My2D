@@ -9,17 +9,24 @@ namespace My2D
         private Rigidbody2D rb2D;
         //애니메이션
         public Animator animator;
+        //벽 천장
+        private TouchingDirection touchingDirection;
         //걷는 속도
         [SerializeField]private float walkSpeed = 4f;
         [SerializeField]private float runSpeed = 7f;
+        //점프시 좌우 이동 속도
+        [SerializeField] private float airSpeed = 2f;
         
         private Vector2 inputMove;
         
 
         [SerializeField]private bool isMoving = false;
         [SerializeField]private bool isRunning = false;
+        [SerializeField]private bool isJump = false;
 
         private bool isFacingRight = true;
+        //점프 키 눌렀을깨 위로 올라가는 속도갑
+        [SerializeField] private float jumpForce = 5f;
         #endregion
 
         #region Property
@@ -29,7 +36,7 @@ namespace My2D
             set 
             {
                 isMoving = value;
-                animator.SetBool(AniamationString.isMoving, value);
+                animator.SetBool(AnimationString.isMoving, value);
             }
         }
 
@@ -39,7 +46,7 @@ namespace My2D
             set
             {
                 isRunning = value;
-                animator.SetBool(AniamationString.isRunning, value);
+                animator.SetBool(AnimationString.isRunning, value);
             }
         }
 
@@ -48,18 +55,28 @@ namespace My2D
         {
             get
             {
-                if (IsMoving)
+                //인풋 값 들어왔을때 and 벽에 부딛치지 않았을 때
+                if (IsMoving && touchingDirection.IsWall == false)
                 {
-                    if (IsRunning)
+                    if (touchingDirection.IsGround)
                     {
-                        return runSpeed;
+                        if (IsRunning)//시프트를 누르고 있을때
+                        {
+                            return runSpeed;
+                        }
+                        else
+                        {
+                            return walkSpeed;
+                        }
                     }
                     else
                     {
-                        return walkSpeed;
+
+                        return airSpeed;
                     }
+                    
                 }
-                else
+                else//공중
                 {
                    return 0f;//idle 상태
                 }
@@ -92,12 +109,16 @@ namespace My2D
       
         private void Awake()
         {
+            touchingDirection = this.GetComponent<TouchingDirection>();
             rb2D = this.GetComponent<Rigidbody2D>();
         }
         private void FixedUpdate()
         {
             // 리니어 벨로시티를 사용한 좌우 이동
             rb2D.linearVelocity = new Vector2(inputMove.x * CurrentSpeed, rb2D.linearVelocity.y);
+
+            //애니메이처 속도값 셋팅
+            animator.SetFloat(AnimationString.yVelocity, rb2D.linearVelocityY);
         }
 
         #region Custom Method
@@ -113,18 +134,38 @@ namespace My2D
         public void OnRun(InputAction.CallbackContext context)
         {
           
-            if (context.started)
+            if (context.started)//button down
             {
-                Debug.Log("Shift Click");
+              
                 IsRunning = true;
             }
-            else if(context.canceled)
-            {
-                Debug.Log("Shift Click Cancle");
+            else if(context.canceled)//button Up
+            { 
+               
                 IsRunning = false;
             }
         }
+        public void OnJump(InputAction.CallbackContext context)
+        {
+            if (context.started && touchingDirection.IsGround)//buttondown
+            {
+                //속도 연산-위로 이동하는 속도값
+                rb2D.linearVelocity = new Vector2(rb2D.linearVelocityX, jumpForce);
 
+                animator.SetTrigger(AnimationString.jumpTrigger);      
+            }
+            
+        }
+
+        public void OnAttack(InputAction.CallbackContext context)
+        {
+            if (context.started && touchingDirection.IsGround)//mouse left buttondown
+            {
+                
+                animator.SetTrigger(AnimationString.attackTrigger);
+            }
+
+        }
         void SetFacingDirection(Vector2 moveInput)
         {
             
