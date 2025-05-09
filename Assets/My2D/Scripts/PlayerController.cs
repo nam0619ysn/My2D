@@ -16,6 +16,7 @@ namespace My2D
         [SerializeField]private float runSpeed = 7f;
         //점프시 좌우 이동 속도
         [SerializeField] private float airSpeed = 2f;
+       
         
         private Vector2 inputMove;
         
@@ -55,6 +56,11 @@ namespace My2D
         {
             get
             {
+                //공격시 이동제어
+                if (CannotMove)
+                {
+                    return 0f;
+                }
                 //인풋 값 들어왔을때 and 벽에 부딛치지 않았을 때
                 if (IsMoving && touchingDirection.IsWall == false)
                 {
@@ -98,6 +104,16 @@ namespace My2D
                 }
                 isFacingRight = value;
             }
+        }
+
+        //공격시 이동 불가
+        public bool CannotMove
+        {
+            get
+            {
+                return animator.GetBool(AnimationString.cannotMove);
+            }
+            
         }
         #endregion
 

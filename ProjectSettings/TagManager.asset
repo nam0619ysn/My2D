@@ -12,9 +12,9 @@ TagManager:
   - Water
   - UI
   - Ground
-  - 
-  - 
-  - 
+  - Player
+  - Enemy
+  - EnemyHitBox
   - 
   - 
   - 
@@ -44,14 +44,14 @@ TagManager:
   - name: TileMap
     uniqueID: 1740577911
     locked: 0
+  - name: Ememey
+    uniqueID: 911262613
+    locked: 0
   - name: Player
     uniqueID: 2579352383
     locked: 0
   - name: ForGround
     uniqueID: 2171449077
-    locked: 0
-  - name: Ground
-    uniqueID: 911262613
     locked: 0
   - name: Default
     uniqueID: 0
