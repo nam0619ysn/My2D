@@ -11,6 +11,9 @@ namespace My2D
         public Animator animator;
         //벽 천장
         private TouchingDirection touchingDirection;
+        private Damageable damageable;
+
+
         //걷는 속도
         [SerializeField]private float walkSpeed = 4f;
         [SerializeField]private float runSpeed = 7f;
@@ -115,6 +118,8 @@ namespace My2D
             }
             
         }
+
+        public bool IsDeath => damageable.IsDeath;
         #endregion
 
         private void Start()
@@ -127,12 +132,17 @@ namespace My2D
         {
             touchingDirection = this.GetComponent<TouchingDirection>();
             rb2D = this.GetComponent<Rigidbody2D>();
+
+            damageable = this.GetComponent<Damageable>();
+            damageable.hitAction += OnHit;
         }
         private void FixedUpdate()
         {
-            // 리니어 벨로시티를 사용한 좌우 이동
-            rb2D.linearVelocity = new Vector2(inputMove.x * CurrentSpeed, rb2D.linearVelocity.y);
-
+            if (damageable.LockVelocity == false)
+            {
+                // 인풋값 따라 사용한 좌우 이동
+                rb2D.linearVelocity = new Vector2(inputMove.x * CurrentSpeed, rb2D.linearVelocity.y);
+            }
             //애니메이처 속도값 셋팅
             animator.SetFloat(AnimationString.yVelocity, rb2D.linearVelocityY);
         }
@@ -141,10 +151,18 @@ namespace My2D
         public void OnMove(InputAction.CallbackContext context)
         {
             inputMove = context.ReadValue<Vector2>();
-
-             SetFacingDirection(inputMove);
-            //인풋 값이 들어오면 IsMove 
-            IsMoving = (inputMove != Vector2.zero);
+            if (IsDeath == false)
+            {  
+                 SetFacingDirection(inputMove);
+                //인풋 값이 들어오면 IsMove 
+                IsMoving = (inputMove != Vector2.zero);
+            }
+            else
+            {
+                IsMoving = false;
+            }
+            
+           
         }
 
         public void OnRun(InputAction.CallbackContext context)
@@ -163,7 +181,7 @@ namespace My2D
         }
         public void OnJump(InputAction.CallbackContext context)
         {
-            if (context.started && touchingDirection.IsGround)//buttondown
+            if (context.started && touchingDirection.IsGround && IsDeath ==false)//buttondown
             {
                 //속도 연산-위로 이동하는 속도값
                 rb2D.linearVelocity = new Vector2(rb2D.linearVelocityX, jumpForce);
@@ -193,6 +211,11 @@ namespace My2D
             {
                 IsFacingRight = false;
             }
+        }
+        //데미지 입을때 호출되는 함수
+        public void OnHit(float damage,Vector2 knockback)
+        {
+            rb2D.linearVelocity = new Vector2(knockback.x,rb2D.linearVelocityY+knockback.y);
         }
         #endregion
     }

@@ -32,6 +32,7 @@ namespace My2D
         private float stopRate = 0.2f;
 
         private bool hasTarget = false;
+        Damageable damageable;
         #endregion
         #region Property
       public WalkableDirection WalkDirection
@@ -60,7 +61,7 @@ namespace My2D
                 walkDirection = value;
             }
                             
-       }
+      }
             public bool CannotMove
             {
                 get
@@ -70,7 +71,7 @@ namespace My2D
             }
  
       public bool HasTarget
-        {
+      {
             get
             {
                 return hasTarget;
@@ -80,6 +81,20 @@ namespace My2D
                 hasTarget = value;
                 animator.SetBool(AnimationString.hasTarget, value);
             }
+      }
+
+      //공격 쿨타임: 읽어서 0보다 크면 3초타이머 돌려 0으로 다시 파라미터 셋팅
+
+        public float CoolDownTime
+        {
+            get
+            {
+                return animator.GetFloat(AnimationString.cooldownTime);
+            }
+            set
+            {
+                animator.SetFloat(AnimationString.cooldownTime, value);
+            }
         }
         #endregion
         #region Unity Method
@@ -87,14 +102,22 @@ namespace My2D
         {
            
             rb2D = this.GetComponent<Rigidbody2D>();
-            touchingDirection = this.GetComponent<TouchingDirection>();      
-              
-           
+            touchingDirection = this.GetComponent<TouchingDirection>();
+            
+            damageable = this.GetComponent<Damageable>();
+            damageable.hitAction += OnHit;
+
         }
         private void Update()
         {
             //적감지
             HasTarget= detectionZone.detectedColliders.Count > 0;
+
+            //CooldownTime
+            if (CoolDownTime > 0)
+            {
+                CoolDownTime -= Time.deltaTime;
+            }
         }
         private void FixedUpdate()
         {
@@ -136,6 +159,10 @@ namespace My2D
             }
         }
 
-        
+        public void OnHit(float damage, Vector2 knockback)
+        {
+            rb2D.linearVelocity = new Vector2(knockback.x, rb2D.linearVelocityY + knockback.y);
+        }
+
     }
 }
