@@ -10,7 +10,7 @@ namespace My2D
         public Animator animator;
        
 
-        private float currentHealth;
+       [SerializeField] private float currentHealth;
 
        [SerializeField]private float maxHealth = 100;
 
@@ -80,6 +80,8 @@ namespace My2D
                 animator.SetBool(AnimationString.lockVelocity, value);
             }
         }
+
+        public bool IsHealthFull => CurrentHealth >= MaxHealth;
         #endregion
 
         #region UNity Event Method
@@ -106,6 +108,7 @@ namespace My2D
         #endregion
 
         #region Custom Method
+        //헬스 감산
         public bool TakeDamage (float damage,Vector2 knockback)
         {
            
@@ -121,23 +124,42 @@ namespace My2D
             isInvincible = true;
             countdown=0;
             //애니메이션
-            
-
-            //델리게이트 함수에 등록될 함수 호출
             animator.SetTrigger(AnimationString.hitTrigger);
             LockVelocity = true;
+
+
+            //효과 sfc vfx 넉백효과 UI
+            //델리게이트 함수에 등록될 함수 호출:
             //if(hitAction != null)
             //{
             //    hitAction.Invoke(damage,knockback);
             //}
             hitAction?.Invoke(damage, knockback);
-
+            //UI효과 데미지 text 프리팹 생성하는 람수가 등록된
+            CharacterEvents.characterDamaged?.Invoke(gameObject,damage);
             return true;
         }
         private void Die()
         {
             IsDeath = true;
             animator.SetBool(AnimationString.isDeath, true);
+        }
+
+        //Health 가ㄴ산
+        public bool Heal(float healAmount)
+        {
+            if (IsDeath || IsHealthFull )
+            {
+                return false;
+            }
+            CurrentHealth += healAmount;
+
+            if (CurrentHealth > maxHealth)
+            {
+                CurrentHealth = maxHealth;
+            }
+            Debug.Log($"CurrentHealth:{CurrentHealth}");
+            return true;
         }
         #endregion
     }

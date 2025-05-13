@@ -19,6 +19,7 @@ namespace My2D
         private Rigidbody2D rb2D;
         private TouchingDirection touchingDirection;
         public DectectionZone detectionZone;
+        public DectectionZone cliffeDetection;
         public Animator animator;
         //걷는 속도
         [SerializeField] private float walkSpeed = 4f;
@@ -32,7 +33,7 @@ namespace My2D
         private float stopRate = 0.2f;
 
         private bool hasTarget = false;
-        Damageable damageable;
+        private Damageable damageable;
         #endregion
         #region Property
       public WalkableDirection WalkDirection
@@ -106,6 +107,7 @@ namespace My2D
             
             damageable = this.GetComponent<Damageable>();
             damageable.hitAction += OnHit;
+            cliffeDetection.noColliderRemain += Flip;
 
         }
         private void Update()
@@ -144,7 +146,7 @@ namespace My2D
 
         void Flip()
         {
-            Debug.Log("방향 전환");
+           
             if(WalkDirection == WalkableDirection.Left)
             {
                 WalkDirection = WalkableDirection.Right;
