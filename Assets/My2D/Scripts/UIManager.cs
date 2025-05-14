@@ -6,6 +6,7 @@ namespace My2D
     {
         #region Variables
         public GameObject damageTextPrefab;
+        public GameObject healTextPrefab;
 
         public Canvas gameCanvas;
 
@@ -23,11 +24,13 @@ namespace My2D
         {
             //함수등록
             CharacterEvents.characterDamaged += CharacterTakeDamage;
+            CharacterEvents.characterHealed += CharacterHeal;
         }
         private void OnDisable()
         {
             //함수 제거
             CharacterEvents.characterDamaged -= CharacterTakeDamage;
+            CharacterEvents.characterHealed -= CharacterHeal;
         }
         #endregion
 
@@ -52,14 +55,18 @@ namespace My2D
         {
             Vector3 spawnPosition = camera.WorldToScreenPoint(character.transform.position);
 
-            GameObject textGo = Instantiate(damageTextPrefab, spawnPosition + offset, Quaternion.identity, gameCanvas.transform);
+            GameObject textGo = Instantiate(healTextPrefab, spawnPosition + offset, Quaternion.identity, gameCanvas.transform);
             //테스트 객체
-            TextMeshProUGUI healAmountText = textGo.GetComponent<TextMeshProUGUI>();
-            if (healAmountText)
+            TextMeshProUGUI healText = textGo.GetComponent<TextMeshProUGUI>();
+            if (healText)
             {
-               healAmountText.text = healAmount.ToString();
+               healText.text = healAmount.ToString();
             }
+
+
         }
+
+      
         #endregion
     }
 }

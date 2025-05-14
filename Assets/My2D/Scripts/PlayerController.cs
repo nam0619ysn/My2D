@@ -200,6 +200,16 @@ namespace My2D
             }
 
         }
+        public void OnBowAttack(InputAction.CallbackContext context)
+        {
+
+            if (context.started && touchingDirection.IsGround)// F button down
+            {
+
+                animator.SetTrigger(AnimationString.bowattackTrigger);
+            }
+            
+        }
         void SetFacingDirection(Vector2 moveInput)
         {
             
